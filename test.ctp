@@ -95,17 +95,18 @@
 				
 							<div class="milestones">
 								<?php //if(count($projectMilestones) > 0): ?>								
-										<div class="milestone" >							
-											<div class="col-md-9">								
-												<input type="text" name="data[Milestone][name]" value="<?php echo ''; ?>" placeholder="Milestone" required/>
-											</div>
-											<div class="col-md-3">
-												<button name="data[Milestone][save]" class="save" style="background: #334762 none repeat scroll 0 0;border: medium none;color: #fff;font-size: 16px;height: 42px;margin-left: 7px;padding: 0 40px;">Save</button>
-											</div>																		
-										</div>						
+<!-- 										<div class="milestone" > 
+										<div style="margin:5px;">							
+												<input type="text" style="width: 80%;height: 40px;" name="data[Milestone][name]" value="" placeholder="Milestone" required/>
+												<div class="pull-right actions"><button name="data[Milestone][save]" class="save" style="background: #334762 none repeat scroll 0 0;border: medium none;color: #fff;font-size: 16px;height: 42px;margin-left: 7px;padding: 0 40px;">Save</button>
+ 											</div></div>																		 
+ 										</div>						 -->
 										<div class="milestone">
-											Milestone  <div class="pull-right actions"><a href="" class="edit"></a><a href="" class="remove"></a></div>
-										</div>						
+											<span>Milestone</span>  <div class="pull-right actions"><a href="" class="edit"></a><a href="" class="remove"></a></div>
+										</div>
+										<div class="milestone">
+											<span>Milestone</span>  <div class="pull-right actions"><a href="" class="edit"></a><a href="" class="remove"></a></div>
+										</div>																
 								<?php //else: ?>
 										<h3 class="alert-danger"><?php echo Configure::read('no_milestones'); ?></h3>
 								<?php //endif; ?>
@@ -116,14 +117,26 @@
 				</section>
 				
 				<script type="text/javascript">
+				var newMileStoneId = 1; //fetch last milestone id from db +1
 					$(document).ready(function ()
 					{
-						var newMileStoneId = 1; //fetch last milestone id from db +1
+						
 						$('.add-milestone').on("click", function() {
-							$('.milestones').append('<div class="milestone" id="milestone-div-'+newMileStoneId+'"><div class="col-md-9"><input type="text" id="addedMilestone'+newMileStoneId+'" name="data[Milestone][name'+newMileStoneId+']" value="" placeholder="Milestone" required/></div><div class="col-md-3"><button id="saveAddedMilestone" class="save saveAddedMilestone" style="background: #334762 none repeat scroll 0 0;border: medium none;color: #fff;font-size: 16px;height: 42px;margin-left: 7px;padding: 0 40px;" onclick="saveMilestone('+newMileStoneId+');">Save</button></div></div><div class="col-md-12" id="msgarea-'+newMileStoneId+'" style="display:none;"></div>');
+							//$('.milestones').append('<div class="milestone" id="milestone-div-'+newMileStoneId+'"><div class="col-md-9"><input type="text" id="addedMilestone'+newMileStoneId+'" name="data[Milestone][name'+newMileStoneId+']" value="" placeholder="Milestone" required/></div><div class="col-md-3"><button id="saveAddedMilestone" class="save saveAddedMilestone" style="background: #334762 none repeat scroll 0 0;border: medium none;color: #fff;font-size: 16px;height: 42px;margin-left: 7px;padding: 0 40px;" onclick="saveMilestone('+newMileStoneId+');">Save</button></div></div><div class="col-md-12" id="msgarea-'+newMileStoneId+'" style="display:none;"></div>');
+							$('.milestones').append('<div class="milestone"><span style="width:80%;" id='+newMileStoneId+'>Milestone</span><button name="data[Milestone][save]" class="save" style="background: #334762 none repeat scroll 0 0;border: medium none;color: #fff;font-size: 16px;height: 42px;margin-left: 7px;padding: 0 40px;float:right;">Save</button></div>');
 							newMileStoneId++;
 						});
 
+						
+
+					});
+
+					$(document).on('click', 'span', function() {
+					    var divHtml = $(this).html(); // notice "this" instead of a specific #myDiv
+					    var divId = $(this).attr('id');
+					    var editableText = $('<input type="text" style="width: 80%;margin-bottom: 0px;border:none;" id="addedMilestone'+divId+'" name="data[Milestone][name'+divId+']" value="" required/>');
+					    $(this).replaceWith(editableText);
+					    editableText.focus();
 					});
 
 					function saveMilestone(mileStoneDivId)
@@ -196,7 +209,7 @@
 
 					}			
 				</script>
-				<!-- http://www.synapse.asia/pmportal_8095/criticalPaths/index/1 -->
+				<!-- http://stackoverflow.com/questions/2441565/how-do-i-make-a-div-element-editable-like-a-textarea-when-i-click-it -->
 			</div>
 		</div>
 		<footer>
@@ -208,7 +221,7 @@
 				<li><a href="">Quisque dictum</a></li>
 				<li><a href="">urna ut nisi</a></li>
 			</ul>
-			<small>Copyright © 2016 Traction Hound. All Rights Reserved</small>
+			<small>Copyright Â© 2016 Traction Hound. All Rights Reserved</small>
 		</footer>
 	</body>
 </html>
