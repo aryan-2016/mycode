@@ -147,7 +147,19 @@ $userObj = ClassRegistry::init('User');
 $this->Session->read('abc');
 
 Router::url().'?show=manual';
-
-
 ?>
 
+
+,'autocomplete' => 'off','required' => 'required',
+'equalTo'=>'#pwd'
+
+
+'pattern'=>'^[a-zA-Z\s]+$','title'=>'Only alphabets and space are allowed',
+'pattern'=>'^([0-9a-zA-Z]{1,}([\s-]?)[0-9a-zA-Z]{1,})+$','title'=>'Please enter valid postal code. eg. 59GK-65 85',
+'pattern'=>'(^\+?)((\(?\d{2,7}\)?)+([- ]?|[ ]?))+\d{2,7}$','title'=>'eg. +91-123(445)56-53', 'maxlength'=>'10'
+'pattern'=>'[a-z0-9._-]+@[a-z0-9.]+\.[a-z]{2,4}$','title'=>'Capital letters, spaces and special characters (except @, _, - and .) are not allowed. eg.  abc.def@gmail.com',
+'minlength'=>'8'
+'title'=>'eg. http://www.xyz.com or https://www.xyz.eu/xyz','value' =>'','pattern'=>'https?://.+'
+'pattern'=>'(100)|(0*\d{1,2})','title'=>'Only values between 0 and 100 are allowed',
+'pattern' => '(^[0-9]$)|(^$)|(^[1][0-9]$)|(^20$)','title' => 'Enter valid values between 0 and 20'
+'pattern'=>'^[0-9]*$','title'=>'only digits are allowed'
