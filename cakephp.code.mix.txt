@@ -1,0 +1,219 @@
+<?php
+public function ajaxCall()
+{
+	$this->layout = false;		
+	$this->autoRender = false;
+	
+	if(!isset($_SESSION))
+			session_start();
+		
+	if (isset ( $_POST ['type'] ) && $_POST ['type'] != '')
+	{			
+		if ($_POST ['type'] == 'load-users')
+		{
+			$view = new View($this, false);
+			$content = $view->element('users', array(
+						'userIds' => $userIds, 
+						'names' => $names,						
+				));
+					
+			echo json_encode($content);
+			return;
+
+			$view = new View($this, false);				
+			$content = $view->element('users', compact('userIds', 'names'));
+			echo json_encode($content);
+			return;			
+		}
+	}
+}
+
+==============
+
+$urlString = env('HTTP_HOST').$_SERVER['REQUEST_URI']; //Router::url();
+
+if (strpos($urlString,'ajaxCall') == false) 
+{
+	echo $_SERVER['REMOTE_ADDR'].': '.$urlString;
+}
+		
+$url = array_filter(explode("/", Router::url()));
+
+$fh = fopen(Configure::read('logfilepath').date("Y-m-d")."-log.txt",'a');
+$slog = str_replace("\r\n","\n",$text);
+$slog = date("H:i:s")." ".$slog."\n";
+fwrite($fh,$slog);
+fclose($fh);	
+
+==============
+
+$(document).click(function(){  
+   	//$('#box').hide(); 
+   	$('#box').animate({'top':'-180px'},400,function(){
+           $('#overlay').fadeOut('fast');
+       });
+  });
+  
+$('#overlay').fadeIn('fast',function(){
+       $('#box').animate({'top':'35%'},400);
+   }); 
+   
+<div class="overlay" id="overlay" style="display:none;"></div>
+<div class="box" id="box">            
+     msg        
+</div>
+
+<script src="/js/jquery.confirm.js"></script>
+
+function removeItem(thisObj, cid)
+{
+	if($(thisObj).is(':checked'))
+	{
+		
+	}
+	else
+	{	
+		$.confirm({
+			text: "Are you sure you want to remove this item?",
+			confirm: function(button) {	            
+				$.post('<?php echo $url; ?>',
+						{'cmd':'remove-item','id':id},
+						function(data)
+						{    
+							if(data==2)
+							{
+								$("#items").html("");
+								$('#msgarea').show();
+								$("#msgarea").css('color','red');
+								$('#msgarea').html('<h4>No items available</h4>');
+							} 
+							else if(data!=0)
+							{				
+								$("#items").html("");
+								$("#items").html(data);						
+							}	    			
+							else
+							{
+								$('#msgarea').show();
+								$("#msgarea").css('color','green');
+								$('#msgarea').html('<h4>item removed</h4>').clearQueue().hide().fadeTo('medium',1).delay(3000).fadeOut('slow');	    				
+							}  				   				
+						}
+						,"json"
+						);
+			},
+			cancel: function(button) {								
+				$(thisObj).prop('checked', true);				
+			},
+			//confirmButton: "Yes",
+			cancelButton: "No"
+		});		
+	}
+}
+
+==============
+
+function addItem () 
+{
+	var html = '';
+	html+= '<form accept-charset="utf-8" method="post" name="itemform" id="itemform" action="">';
+	html+= '<div class="col-xs-12 col-sm-12 col-md-12" >';
+	html+= '<div class="">';
+	html+= '</form>';
+	    
+	return html;
+}
+
+function enableItem(thisObj, itemId)
+{
+	if($(thisObj).is(':checked')) //.prop('checked')
+	{
+		$('#item'+itemId).attr('disabled', false);
+		$('#item'+itemId).attr('readonly', false);
+		$('#item'+itemId).attr('required', 'required');			
+	}
+	else
+	{
+		$('#item'+itemId).attr('disabled','disabled');
+		$('#item'+itemId).attr('readonly','readonly');
+	}		
+}
+
+==============
+
+<?php echo $this->element('users', array('names' => $names)); ?>
+ 	 	
+<?php echo $this->Session->flash(); ?>	
+
+$('#active').prop('checked', true);
+
+================
+
+<div class="modal fade" id="EditUserModal" style="top:20%;" tabindex="-1" role="dialog" aria-labelledby="EditUserModal" aria-hidden="true">
+    <div class="modal-dialog CheckoutApproveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+	            <!--  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>  -->
+	            <h4 class="modal-title" id="myModalLabel">Rename / Remove User</h4>
+	            <span id="msgarea" style="color:red;font-weight:bold;text-align: center;"></span>
+            </div>
+            <div class="modal-body">
+            	<input class="useredit" name="useredit" id="useredit" type="text" placeholder="" >
+			</div>
+            <div class="modal-footer">			            	
+				<input class="btn btn-default" name="close_edit_user" id="close_edit_user" type="button" value="Close">
+				<input type=hidden id="userid" name="userid" class="userid" value="">						
+				<p id="msgarea2" style="text-align: center;margin-top:10px;"></p>
+        	</div>
+    	</div>
+  	</div>
+</div>
+
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="edit-user-<?php echo $userId; ?>">
+<a class="" id="<?php echo $userId; ?>" title="Edit User" style="cursor:pointer;"></a>
+</div>	
+
+<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="edit-user-<?php echo $userId; ?>" style="display:none;">								
+	<input type="text" id="edituser-<?php echo $userId; ?>" value="" style="" pattern="^[a-zA-Z0-9\s-:_&']+$" title="Only alphanumeric characters underscore(_),hyphen(-), single-quotes('), ampersand(&), colon(:) and space are allowed">
+	&nbsp;
+	<span id="save-updated-user" title="Save" style="cursor: pointer;vertical-align: sub;" onclick="saveUpdatedUser('<?php echo $userId; ?>');">
+		<a class=""></a>
+	</span>
+	&nbsp;
+	<span id="close-updated-user" title="Close" style="cursor: pointer;vertical-align: sub;" onclick="closeUpdatedUser('<?php echo $userId; ?>');">
+		<a class=""></a>
+	</span>
+	&nbsp;
+	<span id="msgarea-<?php echo $userId; ?>" style=""></span>									
+</div>
+
+<div id="msgarea" class="msgarea" style="display: none;text-align: center;"></div>
+<script>
+	$('#msgarea').show();
+	$("#msgarea").css('color','green');
+	$('#msgarea').html('<h4>saved</h4>').clearQueue().hide().fadeTo('medium',1).delay(4000).fadeOut('slow');
+	
+	var confirmMsg = "Are you sure you want to delete this user?";
+	$.confirm({
+			text: confirmMsg,
+			confirm: function(button) {	            
+				document.getElementById("").value = id;
+				$( "#" ).submit();
+			},
+			cancel: function(button) {		        			
+						
+			},
+			//confirmButton: "Yes",
+			cancelButton: "No"
+		});	
+		
+	if(data[0].indexOf('success') > -1){}
+	
+	$.ajaxSetup({async: false});
+	$.post();
+	$.ajaxSetup({async: true});
+	
+</script>
+
+			
+=============
