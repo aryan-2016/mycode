@@ -217,3 +217,39 @@ $('#active').prop('checked', true);
 
 			
 =============
+
+var password1 = document.getElementById('pwd');
+	var password2 = document.getElementById('confirmpwd');
+	var button1=document.getElementById('btnsave');
+	var checkPasswordValidity = function() 
+	{	
+		password1.setCustomValidity('');
+        password2.setCustomValidity('');	
+		if (password1.value != password2.value) 
+		{			
+	        password2.setCustomValidity('Passwords must match');
+	    }	        
+	};
+	button1.addEventListener('click', checkPasswordValidity, false);
+
+	
+=============
+
+<?php echo $this->Html->link('Download Sample CSV','/files/sample.csv',array('class' => '', 'target' => '_blank')); ?>
+	
+
+=============
+
+echo $this->Form->input('abc', array(
+														'label'=>false,
+														'type'=>'checkbox',
+														'after' => '<label style="">&nbsp;Msg</lablel>',
+														'hiddenField' => false,
+														'id'=>'abc',
+														'checked'=>true,
+														'onclick'=>'add(this);',
+														'div' => false
+													)); 	
+												
+=============
+
