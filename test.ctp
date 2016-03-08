@@ -288,3 +288,86 @@ INSERT INTO `sp_milestones` (`id`, `name`, `user_id`, `status`, `project_id`, `c
 (30, 'm7', 5, 1, 1, '2016-03-05 11:08:22', '2016-03-05 11:08:22');
 
 ===============================
+
+
+$this->loadModel("Channel");
+		$this->Channel->recursive = 2;		
+		$this->Channel->bindModel(array('hasMany' => array(
+										'Hack' => array(
+											'className' => 'Hack',
+											'fields' => array('id', 'name'),
+											'conditions' => array(
+												'Hack.project_id' => $projectId,
+												'Hack.user_id' => $userId
+											)))));
+											
+		////filter Favorites
+		$hackFavoriteConditions = array();
+		$hackFavoriteConditions['HackFavorite.user_id'] = $userId;
+			
+		$filterFavorites = 0;
+		if($_GET['favorites'])
+		{
+			$filterFavorites = 1;			
+			$hackFavoriteConditions['HackFavorite.favorite'] = 1;			
+		}
+		////
+		
+		$this->loadModel("HackFavorite");
+		//$this->HackFavorite->recursive = -1;
+		$this->Hack->bindModel(array('hasOne' => array(
+										'HackFavorite' => array(
+											'className' => 'HackFavorite',
+											'fields' => array('hack_id', 'favorite'),
+											'conditions' => $hackFavoriteConditions
+											))));
+		
+		$channels = $this->Channel->find('all', array(
+													'fields' => array('id', 'name'),													
+													'conditions' => array(),
+													'order' => array('Channel.name')
+												));
+												
+		$this->set('channels', $channels);
+		//echo '<br>channels=<pre>';print_r($channels);exit;												
+		$channelsWithHacksArrays = array();		
+		foreach($channels as $channel)
+		{
+			$hacksWithFavoriteArrays = array();
+			if(count($channel['Hack']) > 0)
+			{
+				$count = 0;
+				foreach($channel['Hack'] as &$hack)
+				{
+					//$hack['channel_name'] = $channel['Channel']['name'];
+					
+					$hack['hack_favorite'] = 0;
+						
+					$hackFavoriteCount = 0;
+					if(count($hack['HackFavorite']) > 0)
+					{
+						$count++;
+						$hackFavoriteCount++;
+						$hack['hack_favorite'] = $hack['HackFavorite']['favorite'];
+						$hacksWithFavoriteArrays[] = $hack;
+					}					
+					else if($filterFavorites > 0  && $hackFavoriteCount == 0)
+					{						
+						
+					}
+					else
+						$hacksWithFavoriteArrays[] = $hack;
+				}
+				
+				if($filterFavorites > 0 && $count > 0)
+					$channelsWithHacksArrays[$channel['Channel']['name']] = $hacksWithFavoriteArrays;
+				else if($filterFavorites  && $count == 0)
+				{						
+					
+				}
+				else
+					$channelsWithHacksArrays[$channel['Channel']['name']] = $hacksWithFavoriteArrays;
+			}
+		}
+		
+		$this->set(compact('projectId', 'selectedProjectName', 'userProjects', 'channelsWithHacksArrays'));
