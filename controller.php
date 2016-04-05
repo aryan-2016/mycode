@@ -169,3 +169,36 @@ $z=print_r($arr,1);
 
 $imagefile = $_FILES['abc'];
 
+
+	public function sendEmail($to, $from, $subject, $message)
+	{	
+		$email = new CakeEmail();
+		$email->template('default');
+		$email->emailFormat('both');
+		$email->viewVars(array('message' => $message));
+		$email->to($to);
+		$email->from($from);
+		$email->subject($subject);		
+		$email->send($message);
+		return true;
+	}
+	
+	
+		public $default = array(
+							'transport' => 'Smtp',
+							'from' => 'abc@gmail.com',
+							'charset' => 'utf-8',
+							'headerCharset' => 'utf-8',
+						);
+
+	public $smtp = array(
+						'transport' => 'Smtp',
+						'host' => 'localhost',
+						'port' => 25,
+						'timeout' => 30,
+						'client' => null,
+						'log' => false,
+						'charset' => 'utf-8',
+						'headerCharset' => 'utf-8',
+						'helpers' => array('Html')
+					);
