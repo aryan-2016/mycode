@@ -253,3 +253,20 @@ echo $this->Form->input('abc', array(
 												
 =============
 
+
+$csvFileName = "subscriber.csv";
+			
+			$csvData = "Email, Added Date\n";
+			
+			header('Content-type: text/csv'); // application/ms-excel
+			header('Content-Disposition: attachment; filename=' . $csvFileName);
+			
+			foreach($fetchAllSubscriber as $row) 
+			{				
+				$email = $row->email;
+				$addedDate = $row->addeddate;				
+				
+				$csvData .= "$email, $addedDate\n";
+			}
+			
+			echo $csvData;	
