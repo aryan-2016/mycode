@@ -1,0 +1,63 @@
+http://www.tutorials.kode-blog.com/laravel-5-admin-panel
+
+https://github.com/start-laravel/sb-admin-laravel-5
+
+https://laravel.com/docs/5.2/quickstart-intermediate
+
+https://laravel.com/docs/5.2/quickstart
+
+
+https://hsnyc.co/how-to-set-the-mysql-root-password-in-localhost-using-wamp/
+
+http://crudgenerator.in
+
+http://framework.zend.com/manual/current/en/user-guide/overview.html
+
+http://sql.phpmix.com/index.php
+
+
+
+---------------------------------------------
+
+Use this :
+php -r "readfile('https://getcomposer.org/installer');" | php
+
+After this you can able to perform other action.
+php composer.phar self-update
+php composer.phar install
+php composer.phar update
+
+-- How to set the MySQL root password in localhost using WAMP:
+
+1. On the wamp menu go to MySQL –> MySQL console.
+2. Hit enter as there is no password.
+3. Enter the following commands-
+mysql> SET PASSWORD for 'root'@'localhost' = password('enteryourpassword');
+
+composer install --prefer-dist
+
+
+curl -sS https://getcomposer.org/installer | php
+composer --version
+
+<VirtualHost *:80>
+	ServerName zf-Big-Sticky-Notes-master.localhost
+	DocumentRoot C:/wamp/www/zf-Big-Sticky-Notes-master/public
+	SetEnv APPLICATION_ENV "development"
+	<Directory C:/wamp/www/zf-Big-Sticky-Notes-master/public>
+		DirectoryIndex index.php
+		AllowOverride All
+		Order allow,deny
+		Allow from all
+	</Directory>
+</VirtualHost>
+
+---------------------------------------------
+
+git add .
+
+git commit -am "first commit"
+
+git push heroku master
+
+git clone https://github.com/heroku/php-getting-started.git
