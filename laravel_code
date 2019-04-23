@@ -1,0 +1,402 @@
+/* upload, read and display csv file with pagination using ajax */
+1. upload_csv.blade.php:
+<!doctype html>
+<html>
+    <head>
+        <title>Upload CSV</title>
+        
+        <meta name="_token" content="{{ csrf_token() }}" />
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="row">
+            <div class="col-lg-12">
+                <form method='post' action='save-csv' enctype='multipart/form-data' id="uploadCsvForm">
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <input type='file' name='file' id="uploadFile" required>
+                            
+                            <span id="errormessage"></span>
+                        </div>
+                    </div>    
+                            
+                    <div class="col-lg-3">                        
+                        <input type='submit' class="btn btn-primary" name='submit' value='Upload CSV'>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-12">
+                <input type='button' class="btn btn-primary" value='Read CSV' id="readCsv">
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-12">
+                <div id="csvOutput">
+            
+                </div>
+            </div>
+        </div>
+    </body>
+    
+    <script>
+        $("#uploadCsvForm").on("submit", function(e) {
+            e.preventDefault();
+            
+            var extension = $('#uploadFile').val().split('.').pop().toLowerCase();
+            
+            if ($.inArray(extension, ['csv']) == -1) {
+                $('#errormessage').html('Please Select Valid File... ');
+            } else {
+                var file_data = $('#uploadFile').prop('files')[0];
+
+                var form_data = new FormData();
+                form_data.append('file', file_data);
+                
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-Token': $('meta[name=_token]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    url: "{{ url('save-csv') }}",
+                    data: form_data,
+                    type: 'POST',
+                    contentType: false, // The content type used when sending data to the server.
+                    cache: false, // To unable request pages to be cached
+                    processData: false,
+                    dataType: "json",
+                    success: function(response) {
+                        $('#errormessage').html(response.message);
+                    },
+                    error: function(response)
+                    {
+                        $('#errormessage').html(response.message);
+                    }
+                });
+            }
+        });
+        
+        $("#readCsv").on("click", function(e) {
+            e.preventDefault();
+            
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-Token': $('meta[name=_token]').attr('content')
+                }
+            });
+
+            $.ajax({
+                url: "{{ url('read-csv') }}",
+                data: {},
+                type: 'POST',
+                contentType: false, // The content type used when sending data to the server.
+                cache: false, // To unable request pages to be cached
+                processData: false,
+                dataType: "json",
+                success: function(response) {
+                    $('#csvOutput').html(response.data);
+                },
+                error: function(response)
+                {
+                    console.log(response);
+                }
+            });
+        });
+        
+        $(document).on("click", ".paginate", function(e) {
+            e.preventDefault();
+            
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-Token': $('meta[name=_token]').attr('content')
+                }
+            });
+
+            $.ajax({
+                url: "{{ url('read-csv') }}" + $(this).attr('href'),
+                contentType: false, // The content type used when sending data to the server.
+                cache: false, // To unable request pages to be cached
+                processData: false,
+                dataType: "json",
+                success: function(response) {
+                    $('#csvOutput').html(response.data);
+                },
+                error: function(response)
+                {
+                    console.log(response);
+                }
+            });
+        });
+    </script>
+</html>
+
+
+2. <?php
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class TestController extends Controller
+{
+    public function uploadCsv(){
+        return view('test/upload_csv');
+    }
+
+    public function saveCsv(Request $request){
+        try {
+            if ($request->isMethod('POST')) {
+                if (!empty($request->file)) {
+                    $uploadedFile = $request->file('file');
+
+                    // File Details 
+                    $fileName = $uploadedFile->getClientOriginalName();
+                    $extension = $uploadedFile->getClientOriginalExtension();
+                    $tempPath = $uploadedFile->getRealPath();
+                    $fileSize = $uploadedFile->getSize();
+                    $mimeType = $uploadedFile->getMimeType();
+
+                    // Valid File Extensions
+                    $valid_extension = array("csv");
+
+                    // 2MB in Bytes
+                    $maxFileSize = 2097152; 
+
+                    // Check file extension
+                    if(in_array(strtolower($extension),$valid_extension)){
+                        // Check file size
+                        if($fileSize <= $maxFileSize){
+                            $savePath = 'public/csv';
+                                                        
+                            /*$decodedImage = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $request->image));
+                        
+                            $imageData = @getimagesizefromstring($decodedImage);
+
+                            $extension = image_type_to_extension($imageData[2]);
+                            $fileName = time() . uniqid() . $extension;  */                      
+                                                        
+                            if(!\Illuminate\Support\Facades\Storage::exists($savePath)) {
+                                \Illuminate\Support\Facades\Storage::makeDirectory($savePath, 0777, true);
+                            }
+
+                            $inputFile = $savePath . '/' . $fileName;
+
+                            \Illuminate\Support\Facades\Storage::put($inputFile, file_get_contents($request->file));
+                            
+                            // File upload location
+                            //$location = public_path('csv');
+
+                            // Upload file
+                            //$file->move($location, $filename);
+
+                            // Import CSV to Database
+                            //$filepath = public_path($location . "/" . $filename);
+
+                            // Reading file
+                            /*$file = fopen($filepath, "r");
+
+                            $importData_arr = array();
+                            $i = 0;
+
+                            while (($filedata = fgetcsv($file, 1000, ",")) !== FALSE) {
+                                $num = count($filedata );
+
+                                // Skip first row (Remove below comment if you want to skip the first row)
+                                /*if($i == 0){
+                                   $i++;
+                                   continue; 
+                                }*/
+
+                                /*for ($c=0; $c < $num; $c++) {
+                                    $importData_arr[$i][] = $filedata [$c];
+                                }
+
+                                $i++;
+                            }
+
+                            fclose($file);
+
+                            // Insert to MySQL database
+                            foreach($importData_arr as $importData){
+                                $insertData = array(
+                                                    "username"=>$importData[1],
+                                                    "name"=>$importData[2],
+                                                    "gender"=>$importData[3],
+                                                    "email"=>$importData[4]
+                                                );
+
+                                Page::insertData($insertData);
+                            }*/
+
+                            return $this->sendResponse([], __('File saved Successfully.'));
+                        }else{
+                            return $this->sendError(__('File too large. File must be less than 2MB.'));
+                        }
+                    }else{
+                        return $this->sendError(__('Invalid File Extension.'));
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            return $this->sendError(__($e->getMessage()), 500);
+        }
+    }
+    
+    public function readCsv(Request $request){
+        $fileName = 'Import_User_Sample_en.csv';
+        $csvOutput = '';
+        $fileWithPath = asset('storage/app/public/csv/' . $fileName);
+
+        /*$handle = fopen($fileWithPath, "r");
+        $csvOutput .= '<table class="table">';
+
+        //display header row                          
+        $csvcontents = fgetcsv($handle);
+
+        $csvOutput .= '<tr>';
+
+        foreach ($csvcontents as $headercolumn) {
+            $csvOutput .= "<th>$headercolumn</th>";
+        }
+
+        $csvOutput .= '</tr>';
+
+        // displaying contents
+        while ($csvcontents = fgetcsv($handle)) {
+            $csvOutput .= '<tr>';
+
+            foreach ($csvcontents as $column) {
+                $csvOutput .= "<td>$column</td>";
+            }
+
+            $csvOutput .= '</tr>';
+        }
+
+        $csvOutput .= '</table>';
+
+        fclose($handle);*/
+        
+        
+        $handle = fopen($fileWithPath,"r")or die("file dont exist");
+        
+        $csvLinesCount = count(file($fileWithPath, FILE_SKIP_EMPTY_LINES));
+        
+        $csvOutput = '';
+        $paginationHtml = '';
+        $numPerPage = 2;
+        $page = !empty($request->page) ? $request->page : 0;
+        $count = 0;
+        $start = $page * $numPerPage;
+        $end = ($page + 1) * $numPerPage;
+        
+        $csvOutput .= '<br/><div class="row"><div class="col-lg-12"><table class="table">';
+
+        //display header row                          
+        $csvcontents = fgetcsv($handle);
+        
+        $csvOutput .= '<tr>';
+
+        foreach ($csvcontents as $headercolumn) {
+            $csvOutput .= "<th>$headercolumn</th>";
+        }
+
+        $csvOutput .= '</tr>';
+        
+        // displaying contents
+        while (!feof($handle )){
+            $csvcontents = fgetcsv($handle);
+            
+            if(!empty($csvcontents) && $count < $end && $count >= $start){
+                $csvOutput .= '<tr>';
+
+                foreach ($csvcontents as $column) {
+                    $csvOutput .= "<td>$column</td>";
+                }
+
+                $csvOutput .= '</tr>';
+            }
+
+            $count++;
+            
+            if($count == $numPerPage) {
+                if($end <= $csvLinesCount){
+                    if($page != 0) {
+                        $paginationHtml .= '<a class="paginate" href="?page=' . ($page - 1) . '">BACK</a>&nbsp;&nbsp;&nbsp;';
+                    }
+
+                    if(!feof($handle)) {
+                        $paginationHtml .= ' <a class="paginate" href="?page=' . ($page + 1) . '">NEXT</a>';
+                    }
+                }
+                else{
+                    $paginationHtml .= '<a class="paginate" href="?page=' . ($page - 1) . '">BACK</a>&nbsp;&nbsp;&nbsp;';
+                }
+            }
+        }
+        
+        $csvOutput .= '</table>' . $paginationHtml . '</div></div>';
+        
+        fclose($handle);
+        
+        return $this->sendResponse($csvOutput);
+    }
+
+    /*success response method.
+    @return \Illuminate\Http\Response*/
+    public function sendResponse($data = [], $message = '')
+    {
+    	$response = [
+            'success' => true,
+            'data'    => $data,
+            'message' => $message,
+        ];
+
+        return response()->json($response, 200);
+    }
+
+    /*return error response.
+    @return \Illuminate\Http\Response*/
+    public function sendError($message, $code = 404)
+    {
+    	$response = [
+            'success' => false,
+            'message' => $message,
+        ];
+
+        return response()->json($response, $code);
+    }
+}
+
+3. <?php
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('upload-csv', 'TestController@uploadCsv');
+
+Route::post('save-csv', 'TestController@saveCsv');
+
+Route::match(array('POST', 'GET'), 'read-csv', array(
+    'uses' => 'TestController@readCsv',
+    'as' => 'readCsv'
+));
