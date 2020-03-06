@@ -1,0 +1,104 @@
+git commands:
+==============
+
+You can fetch all branches from all remotes like this:
+git fetch --all
+
+
+If you want to list all remote branches: 
+git branch -a
+
+----------------------------------------------
+
+git clone without project folder:
+git init .
+git remote add origin git@github.com:user/repo.git
+git fetch origin
+git pull origin master
+
+----------------------------------------------
+
+Create a branch in Git from another branch
+git checkout -b staging development
+
+How do I delete a Git branch locally and remotely?
+git branch -d <branch_name>
+
+# Create a new branch and check it out
+git checkout -b <branch-name> 
+
+# push branch to git
+git push <remote-name> <branch-name> 
+
+----------------------------------------------
+
+Gitignore not working:
+The files/folder in your version control will not just delete themselves just because you added them to the .gitignore. They are already in the repository and you have to remove them. You can just do that with this:
+
+(Remember to commit everything you've changed before you do this.)
+
+git rm -rf --cached .
+git add .
+
+This removes all files from the repository and adds them back (this time respecting the rules in your .gitignore).
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+laravel commands: 
+===================
+
+php artisan config:clear
+php artisan cache:clear
+composer dump-autoload
+php artisan view:clear
+php artisan route:clear
+
+--------------------------------
+
+render email content in browser:
+
+http://dev.abc.local/mail
+
+use Illuminate\Mail\Markdown;
+
+Route::get('mail', function () {
+    $markdown = new Markdown(view(), config('mail.markdown'));
+
+    return $markdown->render('emails.welcome-email', ['data'=>[]]);
+});
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+virtual host setp:
+=====================
+
+1. sudo gedit /opt/lamp/etc/httpd.conf
+# Virtual hosts
+Include etc/extra/httpd-vhosts.conf //uncomment this line
+
+
+2. sudo gedit /etc/hosts
+127.0.0.1  	dev.test.local
+
+
+3. sudo gedit /opt/lamp/etc/extra/httpd-vhosts.conf
+<VirtualHost 127.0.0.1:80>
+    ServerAdmin test-laravel@mailinator.com
+    DocumentRoot /home/lamp/htdocs/laravel-test-project/public
+    ServerName dev.test.local
+    ServerAlias dev.test.local
+    DirectoryIndex index.php
+
+    <Directory /home/lamp/htdocs/laravel-test-project>
+	Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        allow from all
+    </Directory>
+</VirtualHost>
+
+
+4. sudo /opt/lamp/lamp restart
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
